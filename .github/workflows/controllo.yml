@@ -1,0 +1,26 @@
+name: Controllo biglietti
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # ogni 6 ore (orario UTC)
+  workflow_dispatch:         # avvio manuale dal sito
+
+concurrency:
+  group: controllo-biglietti
+  cancel-in-progress: false
+
+jobs:
+  controllo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Avvia controllo
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          DURATA_MAX_MINUTI: "350"
+        run: java ControlloBigliettiServer.java
